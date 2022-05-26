@@ -116,8 +116,12 @@ class MumjolandiaReturnValue(IntEnum):
     rootfs_no_ok = 96
     rootfs_ls_ok = 97
     rootfs_pwd_ok = 98
+    rootfs_get_file_ok = 102
+    rootfs_get_file_fail = 103
+    rootfs_crc_ok = 104
+    rootfs_crc_fail = 105
 
     config_set_ok = 99
     config_set_nook = 100
     config_get_ok = 101
-    config_get_fail = 102
+    config_get_fail = 106

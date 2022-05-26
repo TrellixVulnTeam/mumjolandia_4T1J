@@ -19,6 +19,8 @@ class RootFSSupervisor(MumjolandiaSupervisor):
         self.command_parsers['pwd'] = self.__command_pwd
         self.command_parsers['ls'] = self.__command_ls
         self.command_parsers['cd'] = self.__command_cd
+        self.command_parsers['crc'] = self.__command_crc
+        self.command_parsers['get'] = self.__command_get
 
     def __command_help(self, args):
         return MumjolandiaResponseObject(status=MumjolandiaReturnValue.utils_help,
@@ -36,7 +38,7 @@ class RootFSSupervisor(MumjolandiaSupervisor):
         response = self.rootfs_manager.ls(" ".join(args))
         if response is None:
             return MumjolandiaResponseObject(status=MumjolandiaReturnValue.rootfs_no_ok,
-                                         arguments=["Incorrect path"])
+                                             arguments=["Incorrect path"])
         else:
             return MumjolandiaResponseObject(status=MumjolandiaReturnValue.rootfs_ls_ok,
                                              arguments=[response])
@@ -44,3 +46,17 @@ class RootFSSupervisor(MumjolandiaSupervisor):
     def __command_cd(self, args):
         return MumjolandiaResponseObject(status=MumjolandiaReturnValue.rootfs_pwd_ok,
                                          arguments=[self.rootfs_manager.cd(" ".join(args))])
+
+    def __command_get(self, args):
+        file = self.rootfs_manager.get_file(" ".join(args))
+        if file is None:
+            return MumjolandiaResponseObject(status=MumjolandiaReturnValue.rootfs_get_file_fail,
+                                             arguments=[])
+        else:
+            return MumjolandiaResponseObject(status=MumjolandiaReturnValue.rootfs_get_file_ok,
+                                             arguments=[file])
+
+    def __command_crc(self, args):
+        crc = self.rootfs_manager.get_crc(" ".join(args))
+        return MumjolandiaResponseObject(status=MumjolandiaReturnValue.rootfs_crc_ok,
+                                         arguments=[crc])

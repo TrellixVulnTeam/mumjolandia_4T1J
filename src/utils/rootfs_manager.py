@@ -1,4 +1,5 @@
 import os
+import binascii
 from pathlib import Path
 
 
@@ -51,6 +52,10 @@ class RootFSManager:
     def put_file(self, _bytes: bytes, name: str):
         with open(self.__get_cwd().joinpath(name), "wb") as out_file:
             out_file.write(_bytes)
+        return True
+
+    def get_crc(self, filename: str):
+        return binascii.crc32(bytes('hello-world'))
 
     def __get_cwd(self):
         return os.path.normpath(Path.joinpath(Path(os.getcwd()), self.__current_directory).absolute())
