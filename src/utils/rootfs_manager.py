@@ -42,7 +42,7 @@ class RootFSManager:
         return '\n'.join(return_value)
 
     def get_file(self, name: str):
-        path = Path(self.__get_cwd().joinpath(name))
+        path = Path(self.__get_cwd()).joinpath(name)
         if path.is_file():
             with open(name, "rb") as in_file:
                 return in_file.read()
@@ -55,7 +55,11 @@ class RootFSManager:
         return True
 
     def get_crc(self, filename: str):
-        return binascii.crc32(bytes('hello-world'))
+        path = Path(self.__get_cwd()).joinpath(filename)
+        if path.is_file():
+            with open(filename, "rb") as in_file:
+                return binascii.crc32(in_file.read())
+        return None
 
     def __get_cwd(self):
         return os.path.normpath(Path.joinpath(Path(os.getcwd()), self.__current_directory).absolute())

@@ -124,6 +124,10 @@ class MumjolandiaCliPrinter:
         self.views[MumjolandiaReturnValue.rootfs_ls_ok.name] = self.view_default_response
         self.views[MumjolandiaReturnValue.rootfs_no_ok.name] = self.view_default_response
         self.views[MumjolandiaReturnValue.rootfs_pwd_ok.name] = self.view_default_response
+        self.views[MumjolandiaReturnValue.rootfs_crc_ok.name] = self.view_default_response
+        self.views[MumjolandiaReturnValue.rootfs_crc_fail.name] = self.view_default_response
+        self.views[MumjolandiaReturnValue.rootfs_get_file_fail.name] = self.view_default_response
+        self.views[MumjolandiaReturnValue.rootfs_get_file_ok.name] = self.view_rootfs_get_file_ok
 
         self.views[MumjolandiaReturnValue.config_set_ok.name] = self.view_default_response
         self.views[MumjolandiaReturnValue.config_set_nook.name] = self.view_default_response
@@ -385,3 +389,9 @@ class MumjolandiaCliPrinter:
         else:
             print("plan:")
             print_plan(return_value.arguments[0])
+
+    def view_rootfs_get_file_ok(self, return_value):
+        print("got file")
+        f = open('new.file', 'wb')
+        f.write(return_value.arguments[0])
+        f.close()

@@ -51,7 +51,7 @@ class RootFSSupervisor(MumjolandiaSupervisor):
         file = self.rootfs_manager.get_file(" ".join(args))
         if file is None:
             return MumjolandiaResponseObject(status=MumjolandiaReturnValue.rootfs_get_file_fail,
-                                             arguments=[])
+                                             arguments=["File get failed"])
         else:
             return MumjolandiaResponseObject(status=MumjolandiaReturnValue.rootfs_get_file_ok,
                                              arguments=[file])
