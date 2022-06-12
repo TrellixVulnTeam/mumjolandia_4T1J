@@ -3,7 +3,7 @@ import socket
 import logging
 
 from src.modules.connection.message_factory import MessageFactory
-from src.modules.connection.remote_command_executor import RemoteCommandExecutor
+from src.modules.connection.media_command_executor import MediaCommandExecutor
 
 
 class SocketServer:
@@ -11,7 +11,7 @@ class SocketServer:
         self.port_server = port
         self.address_server = address
         self.socket_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.remote_command_executor = RemoteCommandExecutor()
+        self.remote_command_executor = MediaCommandExecutor()
         self.data_passer = data_passer
 
         self.socket_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -36,8 +36,8 @@ class SocketServer:
         logging.debug(received_message.get_string())
         return received_message.get_string()
 
-    def send(self, message):
-        self.__send_message_object(MessageFactory.get(message), self.connect, self.address)
+    def send(self, message, status: int = 0):
+        self.__send_message_object(MessageFactory.get(message, status), self.connect, self.address)
 
     def __send_message_object(self, message, connection, address):
         connection.sendto(message.get(), address)

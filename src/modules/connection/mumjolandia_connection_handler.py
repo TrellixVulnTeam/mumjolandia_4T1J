@@ -3,7 +3,7 @@ import logging
 from src.interface.mumjolandia.mumjolandia_response_object import MumjolandiaResponseObject
 from src.interface.mumjolandia.mumjolandia_return_value import MumjolandiaReturnValue
 from src.utils.rootfs_manager import RootFSManager
-from src.modules.connection.remote_command_executor import RemoteCommandExecutor
+from src.modules.connection.media_command_executor import MediaCommandExecutor
 from src.utils.socket.socket_client import SocketClient
 from src.utils.socket.socket_server import SocketServer
 
@@ -27,7 +27,7 @@ class MumjolandiaConnectionHandler:
                     received_message = server.receive()
                     logging.debug("Received: " + '"' + received_message + '"')
                     response_message = self.__parse_received_message(received_message)
-                    server.send(response_message)
+                    server.send(response_message.arguments[0], int(response_message.status))
                 if self.server_loop_exit_flag:
                     logging.debug("Server exited; " + self.server_accepted_networks_mask + ":" + str(self.port))
                     break
@@ -51,9 +51,10 @@ class MumjolandiaConnectionHandler:
 
     def __parse_received_message(self, message):
         return_value = 'error'
+        return_value = MumjolandiaResponseObject(MumjolandiaReturnValue.mumjolandia_none, [])
         if message == 'exit':
             self.server_loop_exit_flag = True
-            return_value = 'closing server'
+            return_value.arguments.append('closing server')
         # this is not tested
         # elif message == 'update':
         #     update_file = MumjolandiaUpdater.pack_source()
@@ -70,16 +71,24 @@ class MumjolandiaConnectionHandler:
         #     else:
         #         msg_return = MessageFactory().get('')
         elif message == 'pwd':
-            return_value = "pwd\n" + self.rootfs_manager.pwd()
+            return_value.arguments.append("pwd\n" + self.rootfs_manager.pwd())
         elif message.startswith('ls'):
-            return_value = "ls\n" + self.rootfs_manager.ls(message[3:])
-            if return_value is None:
-                return_value = "directory doesn't exist"
+            return_value.arguments.append("ls\n" + self.rootfs_manager.ls(message[3:]))
+            # todo: wtf is this? it can't be empty
+            if not len(return_value.arguments):
+                return_value.arguments.append("directory doesn't exist")
         elif message.startswith('cd'):
             if len(message) > 3:
-                return_value = "cd\n" + self.rootfs_manager.cd(message[3:])
+                return_value.arguments.append("cd\n" + self.rootfs_manager.cd(message[3:]))
             else:
-                return_value = "cd\n" + self.rootfs_manager.cd()
+                return_value.arguments.append("cd\n" + self.rootfs_manager.cd())
+        elif message.startswith('get'):
+            file = self.rootfs_manager.get_file(message[3:])
+            if file is None:
+                return_value.status = MumjolandiaReturnValue.rootfs_get_file_fail
+            else:
+                return_value.status = MumjolandiaReturnValue.rootfs_get_file_ok
+                return_value.arguments.append(file)
         else:
-            return_value = RemoteCommandExecutor().execute(message)
+            return_value = MediaCommandExecutor().execute(message)
         return return_value

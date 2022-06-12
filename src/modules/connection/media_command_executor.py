@@ -1,7 +1,7 @@
 from src.external import keyboard
 
 
-class RemoteCommandExecutor:
+class MediaCommandExecutor:
     def __init__(self):
         pass
 
