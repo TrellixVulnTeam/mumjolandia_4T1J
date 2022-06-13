@@ -17,7 +17,7 @@ class MumjolandiaCliPrinter:
 
     def __init(self):
         self.views['unrecognized_status_response'] = self.view_unrecognized_status_response
-        self.views[MumjolandiaReturnValue.mumjolandia_none.name] = self.view_mumjolandia_none
+        self.views[MumjolandiaReturnValue.mumjolandia_none.name] = self.view_default_response
         self.views[MumjolandiaReturnValue.mumjolandia_unrecognized_command.name] = self.view_unrecognized_command
         self.views[MumjolandiaReturnValue.mumjolandia_exit.name] = self.view_exit
         self.views[MumjolandiaReturnValue.mumjolandia_unrecognized_parameters.name] = \
@@ -134,9 +134,6 @@ class MumjolandiaCliPrinter:
         self.views[MumjolandiaReturnValue.config_get_ok.name] = self.view_default_response
         self.views[MumjolandiaReturnValue.config_get_fail.name] = self.view_default_response
 
-    def view_mumjolandia_none(self, return_value):
-        pass
-
     def view_task_print(self, return_value):
         print(len(return_value.arguments[0]), 'items:')
         max_width = 0
@@ -153,7 +150,8 @@ class MumjolandiaCliPrinter:
         pass
 
     def view_default_response(self, return_value):
-        print(str(return_value.arguments[0]))
+        print(str(return_value.arguments))
+
 
     def view_default_list_response(self, return_value):
         for argument in return_value.arguments:
@@ -392,6 +390,6 @@ class MumjolandiaCliPrinter:
 
     def view_rootfs_get_file_ok(self, return_value):
         print("got file")
-        f = open('new.file', 'wb')
+        f = open('file', 'wb')
         f.write(return_value.arguments[0])
         f.close()

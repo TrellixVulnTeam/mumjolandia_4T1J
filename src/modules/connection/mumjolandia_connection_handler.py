@@ -27,6 +27,8 @@ class MumjolandiaConnectionHandler:
                     received_message = server.receive()
                     logging.debug("Received: " + '"' + received_message + '"')
                     response_message = self.__parse_received_message(received_message)
+                    if not len(response_message.arguments):
+                        response_message.arguments.append("")
                     server.send(response_message.arguments[0], int(response_message.status))
                 if self.server_loop_exit_flag:
                     logging.debug("Server exited; " + self.server_accepted_networks_mask + ":" + str(self.port))
@@ -42,9 +44,9 @@ class MumjolandiaConnectionHandler:
         try:
             with SocketClient(self.server_address, int(self.port)) as s:
                 return_value = s.send(str(message))
-                logging.debug('Received: "' + return_value + '" from ' + self.server_address + ":" + str(self.port))
-                return MumjolandiaResponseObject(status=MumjolandiaReturnValue.connection_client_send_ok,
-                                                 arguments=[return_value])
+                logging.debug('Received: "' + str(MumjolandiaReturnValue(return_value.status)) + '" from ' + self.server_address + ":" + str(self.port))
+                return MumjolandiaResponseObject(status=MumjolandiaReturnValue(return_value.status),
+                                                 arguments=[return_value.data])
         except Exception as e:
             return MumjolandiaResponseObject(status=MumjolandiaReturnValue.connection_failed,
                                              arguments=['Can\'t connect to server: ' + str(e)])
@@ -83,12 +85,12 @@ class MumjolandiaConnectionHandler:
             else:
                 return_value.arguments.append("cd\n" + self.rootfs_manager.cd())
         elif message.startswith('get'):
-            file = self.rootfs_manager.get_file(message[3:])
+            file = self.rootfs_manager.get_file(message[4:])
             if file is None:
                 return_value.status = MumjolandiaReturnValue.rootfs_get_file_fail
             else:
                 return_value.status = MumjolandiaReturnValue.rootfs_get_file_ok
                 return_value.arguments.append(file)
         else:
-            return_value = MediaCommandExecutor().execute(message)
+            return_value.arguments.append(MediaCommandExecutor().execute(message))
         return return_value

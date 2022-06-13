@@ -28,7 +28,7 @@ class SocketClient:
         logging.debug('Sending: ' + str(self.address_client) + ':' + str(self.port_client))
         m_to_send = MessageFactory().get(message)
         self.socket_client.send(m_to_send.get())
-        return self.__receive_message().get_string()
+        return self.__receive_message()
 
     # todo: move to different class
     def get_mumjolandia_update_package(self, file_name='mumjolandia.tar.gz'):

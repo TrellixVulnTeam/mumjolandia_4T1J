@@ -42,12 +42,16 @@ class ConnectionSupervisor(MumjolandiaSupervisor):
         # todo: workaround for broken cmd logger
         if RandomUtils.get_platform() == 'windows':
             print("Starting server\nip: " + RandomUtils.get_ip() + "\nport: " + ConfigLoader.get_config().server_port)
-        return MumjolandiaConnectionHandler(int(ConfigLoader.get_config().server_port)).start_server(run_server_once)
+        return_value = MumjolandiaConnectionHandler(int(ConfigLoader.get_config().server_port)).start_server(run_server_once)
+        return MumjolandiaResponseObject(return_value.status, return_value.arguments)
 
     def __command_send_message(self, args):
         config = ConfigLoader.get_config()
-        return MumjolandiaConnectionHandler(int(config.server_port),
-                                            server_address=config.server_address).send_message(" ".join(args))
+        return_value = MumjolandiaConnectionHandler(int(config.server_port),
+                                                    server_address=config.server_address).send_message(" ".join(args))
+        if return_value.status == MumjolandiaReturnValue.rootfs_get_file_ok:
+            return MumjolandiaResponseObject(return_value.status, [return_value.arguments[0]])
+        return MumjolandiaResponseObject(return_value.status, return_value.arguments[0].decode('utf-8'))
 
     def __command_update(self, args):
         try:
